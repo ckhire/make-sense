@@ -7,7 +7,7 @@ import configureStore from './configureStore';
 import {Provider} from 'react-redux';
 import {AppInitializer} from './logic/initializer/AppInitializer';
 
-
+console.log("IN index.tsx");
 export const store = configureStore();
 AppInitializer.inti();
 

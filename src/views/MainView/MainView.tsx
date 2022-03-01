@@ -16,6 +16,7 @@ const MainView: React.FC = () => {
     const [projectCanceled, setProjectCanceled] = useState(false);
 
     const startProject = () => {
+console.log("In Main View tsx. In progress");
         setProjectInProgress(true);
     };
 

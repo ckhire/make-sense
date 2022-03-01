@@ -5,6 +5,9 @@ import {CustomCursorStyle} from '../../data/enums/CustomCursorStyle';
 import {ContextType} from '../../data/enums/ContextType';
 import {ProjectType} from '../../data/enums/ProjectType';
 
+// cutome indexddb code
+
+//######################
 export type ProjectData = {
     type: ProjectType;
     name: string,

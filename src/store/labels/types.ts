@@ -64,6 +64,37 @@ export type ImageData = {
     isVisitedByPoseDetector: boolean;
 }
 
+export type ImageDatav2 = {
+    id: string;
+    fileData: string;
+    filename: string;
+    imgHeight:number;
+    imgWidth:number;
+    loadStatus: boolean;
+    labelRects: LabelRect[];
+    labelPoints: LabelPoint[];
+    labelLines: LabelLine[];
+    labelPolygons: LabelPolygon[];
+    labelNameIds: string[];
+
+    // SSD
+    isVisitedByObjectDetector: boolean;
+
+    // POSE NET
+    isVisitedByPoseDetector: boolean;
+}
+
+export type NewImageData = {
+    id: string;
+    filename: string;
+    loadStatus: boolean;
+    imgHeight:number;
+    imgWidth:number;
+    loading:string;
+   
+}
+
+
 export type LabelsState = {
     activeImageIndex: number;
     activeLabelNameId: string;

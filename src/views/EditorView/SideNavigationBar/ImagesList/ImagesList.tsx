@@ -12,7 +12,8 @@ import {ContextType} from "../../../../data/enums/ContextType";
 import {ImageActions} from "../../../../logic/actions/ImageActions";
 import {EventType} from "../../../../data/enums/EventType";
 import {LabelStatus} from "../../../../data/enums/LabelStatus";
-
+import { ImageRepository } from "../../../../logic/imageRepository/ImageRepository";
+import {ImageDataUtil} from "../../../../utils/ImageDataUtil"
 interface IProps {
     activeImageIndex: number;
     imagesData: ImageData[];
@@ -22,24 +23,43 @@ interface IProps {
 interface IState {
     size: ISize;
 }
+interface ISavedElements {
+    htlmElements : HTMLImageElement [];
+}
 
 class ImagesList extends React.Component<IProps, IState> {
     private imagesListRef: HTMLDivElement;
-
+    private isavedImageElementes : HTMLImageElement [] = new Array();
+    
     constructor(props) {
         super(props);
-
+	console.log("ImageList contructor");
+    ImageRepository.getAllSavedImages().then((imagetag:HTMLImageElement[])=> this.loadPreviousImageList(imagetag));
         this.state = {
-            size: null,
+            size: {
+                width: 150,
+                height: 150
+            },
         }
     }
 
+    private loadPreviousImageList(imagetag:HTMLImageElement[]){
+        console.log("loadPreviousImageList");
+        this.isavedImageElementes = imagetag;
+        console.log("@@@ ImageList:: ", imagetag.length);
+        console.log("!!!! this.isavedImageElementes:: ", this.isavedImageElementes.length);
+    
+        
+    }
+
     public componentDidMount(): void {
+console.log("ImageList Component Did Mount");
         this.updateListSize();
         window.addEventListener(EventType.RESIZE, this.updateListSize);
     }
 
     public componentWillUnmount(): void {
+console.log("Image List component will mount");
         window.removeEventListener(EventType.RESIZE, this.updateListSize);
     }
 
@@ -86,25 +106,28 @@ class ImagesList extends React.Component<IProps, IState> {
             style={style}
             size={{width: 150, height: 150}}
             isScrolling={isScrolling}
-            isChecked={this.isImageChecked(index)}
-            imageData={this.props.imagesData[index]}
+            isChecked={true} // original this.isImageChecked(index)
+            imageData={this.props.imagesData[0]}
             onClick={() => this.onClickHandler(index)}
             isSelected={this.props.activeImageIndex === index}
+            imageElement={this.isavedImageElementes[index]}
         />
     };
 
     public render() {
+console.log("ImgeList rendering");
+console.log("!!! this.isavedImageElementes length: ", this.isavedImageElementes.length);
         const { size } = this.state;
         return(
             <div
                 className="ImagesList"
                 ref={ref => this.imagesListRef = ref}
                 onClick={() => ContextManager.switchCtx(ContextType.LEFT_NAVBAR)}
-            >
+            >//original !!size
                 {!!size && <VirtualList
                     size={size}
                     childSize={{width: 150, height: 150}}
-                    childCount={this.props.imagesData.length}
+                    childCount={this.isavedImageElementes.length}  //original: this.props.imagesData.length
                     childRender={this.renderImagePreview}
                     overScanHeight={200}
                 />}

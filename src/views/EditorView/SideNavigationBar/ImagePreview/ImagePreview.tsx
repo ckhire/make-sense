@@ -23,6 +23,7 @@ interface IProps {
     onClick?: () => any;
     isSelected?: boolean;
     updateImageDataById: (id: string, newImageData: ImageData) => any;
+    imageElement:HTMLImageElement;
 }
 
 interface IState {
@@ -34,17 +35,20 @@ class ImagePreview extends React.Component<IProps, IState> {
 
     constructor(props) {
         super(props);
-
+console.log("ImagePreview Constructed");
         this.state = {
+
             image: null,
         }
     }
 
     public componentDidMount(): void {
+console.log("Component Did mount");
         ImageLoadManager.addAndRun(this.loadImage(this.props.imageData, this.props.isScrolling));
     }
 
     public componentWillUpdate(nextProps: Readonly<IProps>, nextState: Readonly<IState>, nextContext: any): void {
+console.log("component will Update");
         if (this.props.imageData.id !== nextProps.imageData.id) {
             if (nextProps.imageData.loadStatus) {
                 ImageLoadManager.addAndRun(this.loadImage(nextProps.imageData, nextProps.isScrolling));
@@ -60,6 +64,7 @@ class ImagePreview extends React.Component<IProps, IState> {
     }
 
     shouldComponentUpdate(nextProps: Readonly<IProps>, nextState: Readonly<IState>, nextContext: any): boolean {
+console.log("should component update");
         return (
             this.props.imageData.id !== nextProps.imageData.id ||
             this.state.image !== nextState.image ||
@@ -68,14 +73,31 @@ class ImagePreview extends React.Component<IProps, IState> {
         )
     }
 
-    private loadImage = async (imageData: ImageData, isScrolling: boolean) => {
-        if (imageData.loadStatus) {
-            const image = ImageRepository.getById(imageData.id);
+   private savedImage(image: HTMLImageElement){
+	
             if (this.state.image !== image) {
+		console.log("Saving image in the state");
                 this.setState({ image });
             }
+}
+
+    private loadImage = async (imageData: ImageData, isScrolling: boolean) => {
+        if(this.props.imageElement!==null){
+            //this.setState({ this.props.imageElement });
+            this.state = {
+
+                image: this.props.imageElement,
+            }
+        }
+        else if (imageData.loadStatus) {
+           console.log("Calling getById2 with id: ",);
+            ImageRepository.getById2(imageData.id)
+                         .then((imageName:HTMLImageElement)=> this.savedImage(imageName));
+                         //ImageRepository.getById(imageData.id);
+	    
         }
         else if (!isScrolling || !this.isLoading) {
+	    console.log("Loading Image Preview");
             this.isLoading = true;
             const saveLoadedImagePartial = (image: HTMLImageElement) => this.saveLoadedImage(image, imageData);
             FileUtil.loadImage(imageData.fileData)
@@ -88,6 +110,7 @@ class ImagePreview extends React.Component<IProps, IState> {
         imageData.loadStatus = true;
         this.props.updateImageDataById(imageData.id, imageData);
         ImageRepository.storeImage(imageData.id, image);
+	//ImageRepository.storeImage2(imageData.id, image, imageData);
         if (imageData.id === this.props.imageData.id) {
             this.setState({ image });
             this.isLoading = false;
@@ -134,6 +157,7 @@ class ImagePreview extends React.Component<IProps, IState> {
     };
 
     public render() {
+console.log("Render called");
         const {
             isChecked,
             style,

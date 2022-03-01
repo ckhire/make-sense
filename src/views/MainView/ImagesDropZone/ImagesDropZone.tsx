@@ -29,7 +29,11 @@ const ImagesDropZone: React.FC<IProps> = (props: PropsWithChildren<IProps>) => {
 
     const startEditor = (projectType: ProjectType) => {
         if (acceptedFiles.length > 0) {
+
             const files = sortBy(acceptedFiles, (item: File) => item.name)
+
+
+
             props.updateProjectDataAction({
                 ...props.projectData,
                 type: projectType
@@ -78,7 +82,7 @@ const ImagesDropZone: React.FC<IProps> = (props: PropsWithChildren<IProps>) => {
 
     const startEditorWithObjectDetection = () => startEditor(ProjectType.OBJECT_DETECTION)
     const startEditorWithImageRecognition = () => startEditor(ProjectType.IMAGE_RECOGNITION)
-
+console.log("Dropzon called on tag may be.");
     return(
         <div className='ImagesDropZone'>
             <div {...getRootProps({className: 'DropZone'})}>

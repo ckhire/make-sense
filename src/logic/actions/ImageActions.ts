@@ -19,9 +19,13 @@ import {
 import { LabelStatus } from "../../data/enums/LabelStatus";
 import { remove } from "lodash";
 
+
+
 export class ImageActions {
   public static getPreviousImage(): void {
     const currentImageIndex: number = LabelsSelector.getActiveImageIndex();
+
+
     ImageActions.getImageByIndex(currentImageIndex - 1);
   }
 
@@ -46,6 +50,7 @@ export class ImageActions {
 
   public static setActiveLabelOnActiveImage(labelIndex: number): void {
     const labelNames = LabelsSelector.getLabelNames();
+console.log("In active lable on Active Image");
     if (labelNames.length < labelIndex + 1) {
       return;
     }
@@ -144,9 +149,10 @@ export class ImageActions {
         } else {
           newImageData.labelNameIds = imageData.labelNameIds.concat(labelId);
         }
+
         break;
     }
-
+	
     return newImageData;
   }
 }

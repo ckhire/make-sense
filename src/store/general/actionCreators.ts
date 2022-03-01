@@ -5,6 +5,7 @@ import {PopupWindowType} from '../../data/enums/PopupWindowType';
 import {CustomCursorStyle} from '../../data/enums/CustomCursorStyle';
 import {ContextType} from '../../data/enums/ContextType';
 
+
 export function updateWindowSize(windowSize: ISize): GeneralActionTypes {
     return {
         type: Action.UPDATE_WINDOW_SIZE,
@@ -94,3 +95,4 @@ export function updatePerClassColorationStatus(enablePerClassColoration: boolean
         },
     };
 }
+
