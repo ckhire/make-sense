@@ -68,6 +68,10 @@ export type ImageDatav2 = {
     id: string;
     fileData: string;
     filename: string;
+    fileSrc:string;
+    fileType:string;
+    lastModified:number;
+    fileSize:number;
     imgHeight:number;
     imgWidth:number;
     loadStatus: boolean;
@@ -82,6 +86,8 @@ export type ImageDatav2 = {
 
     // POSE NET
     isVisitedByPoseDetector: boolean;
+    imgloading:string;
+    //imgHtmlTag:string;
 }
 
 export type NewImageData = {

@@ -23,7 +23,7 @@ interface IProps {
     onClick?: () => any;
     isSelected?: boolean;
     updateImageDataById: (id: string, newImageData: ImageData) => any;
-    imageElement:HTMLImageElement;
+    //imageElement:HTMLImageElement;
 }
 
 interface IState {
@@ -35,7 +35,9 @@ class ImagePreview extends React.Component<IProps, IState> {
 
     constructor(props) {
         super(props);
-console.log("ImagePreview Constructed");
+        console.log("ImagePreview Constructed");
+        console.log("~~!!!  Image Preive props at time of construction as set by ImageList: ", this.props);
+        console.log("~~!!! Image Preive Image data at time of construction as set by ImageList: ", this.props.imageData);
         this.state = {
 
             image: null,
@@ -43,12 +45,13 @@ console.log("ImagePreview Constructed");
     }
 
     public componentDidMount(): void {
-console.log("Component Did mount");
+    console.log(" Image Preview Component Did mount");
         ImageLoadManager.addAndRun(this.loadImage(this.props.imageData, this.props.isScrolling));
     }
 
     public componentWillUpdate(nextProps: Readonly<IProps>, nextState: Readonly<IState>, nextContext: any): void {
-console.log("component will Update");
+        console.log("Image Preview component will Update Next:: ", nextProps);
+        console.log("Image Preview component will Update Current :: ", this.props);
         if (this.props.imageData.id !== nextProps.imageData.id) {
             if (nextProps.imageData.loadStatus) {
                 ImageLoadManager.addAndRun(this.loadImage(nextProps.imageData, nextProps.isScrolling));
@@ -64,7 +67,8 @@ console.log("component will Update");
     }
 
     shouldComponentUpdate(nextProps: Readonly<IProps>, nextState: Readonly<IState>, nextContext: any): boolean {
-console.log("should component update");
+        console.log("Image Preview should component update next:: ", nextState);
+        console.log("Image Preview should component update current:: ", this.state);
         return (
             this.props.imageData.id !== nextProps.imageData.id ||
             this.state.image !== nextState.image ||
@@ -76,28 +80,44 @@ console.log("should component update");
    private savedImage(image: HTMLImageElement){
 	
             if (this.state.image !== image) {
-		console.log("Saving image in the state");
+		console.log("~~!!! Saving image in the state:: ", image);
                 this.setState({ image });
             }
 }
 
     private loadImage = async (imageData: ImageData, isScrolling: boolean) => {
-        if(this.props.imageElement!==null){
+        /*if(this.props.imageElement!==null){
             //this.setState({ this.props.imageElement });
             this.state = {
 
                 image: this.props.imageElement,
             }
         }
-        else if (imageData.loadStatus) {
-           console.log("Calling getById2 with id: ",);
-            ImageRepository.getById2(imageData.id)
-                         .then((imageName:HTMLImageElement)=> this.savedImage(imageName));
-                         //ImageRepository.getById(imageData.id);
+        else */
+        console.log("~~!!! Loading Image Preview:: ", imageData.fileData);
+        console.log("~~!!! Load Image:: ", imageData);
+        console.log("~~!!! Load Image isScrolling:: ", isScrolling);
+        if (imageData.loadStatus) {
+           console.log("~~!!! Calling getById2 with id: ",imageData.id);
+           // below could be improved by directly converting the imageData to HTMLTag because we already stored both
+           // assuming that we will always have the image data we will use another function which will convert imagedata to html Tag
+            /*ImageRepository.getById2(imageData.id) 
+                         .then((imageName:HTMLImageElement)=> this.savedImage(imageName));*/
+            /*ImageRepository.convertImageDataToHTMLTag(imageData)
+                         .then((imageName:HTMLImageElement)=> this.savedImage(imageName));*/
+                  /*       ImageRepository.getById2(imageData.id)
+                         .then((nFile: File)=> FileUtil.loadImage(nFile)
+                         .then((imageName:HTMLImageElement)=> this.savedImage(imageName))
+                         .catch((error) => this.handleLoadImageError()));*/
+                         /*FileUtil.loadImage(ImageRepository.getById2(imageData.id))
+                         .then((imageName:HTMLImageElement)=> this.savedImage(imageName))
+                         .catch((error) => this.handleLoadImageError());*/
+            ImageRepository.getHTMLTageById2(imageData.id)
+                        .then((imageName:HTMLImageElement)=> this.savedImage(imageName));
 	    
         }
         else if (!isScrolling || !this.isLoading) {
-	    console.log("Loading Image Preview");
+	    
             this.isLoading = true;
             const saveLoadedImagePartial = (image: HTMLImageElement) => this.saveLoadedImage(image, imageData);
             FileUtil.loadImage(imageData.fileData)
@@ -107,11 +127,16 @@ console.log("should component update");
     };
 
     private saveLoadedImage = (image: HTMLImageElement, imageData: ImageData) => {
+        console.log("~~!!! Called saveLoadedImage:: with imageDataid:: ", imageData.id);
         imageData.loadStatus = true;
         this.props.updateImageDataById(imageData.id, imageData);
-        ImageRepository.storeImage(imageData.id, image);
+        console.log("~~!!! Called saveLoadedImage:: after update::", imageData.id);
+        console.log("~~!!! Called saveLoadedImage:: props id::", this.props.imageData.id);
+        ImageRepository.storeImage3(imageData.id, image,imageData);
 	//ImageRepository.storeImage2(imageData.id, image, imageData);
         if (imageData.id === this.props.imageData.id) {
+            console.log("~~!!! calling saved state after saving new Image with id: ", imageData.id);
+            console.log("~~!!! set State first time : ", image);
             this.setState({ image });
             this.isLoading = false;
         }
@@ -119,6 +144,8 @@ console.log("should component update");
 
     private getStyle = () => {
         const { size } = this.props;
+        console.log("Image Preview Get Style called:: ", this.props);
+        console.log("Image Preview Get Style called:: ", this.state);
 
         const containerRect: IRect = {
             x: 0.15 * size.width,
@@ -145,7 +172,7 @@ console.log("should component update");
         }
     };
 
-    private handleLoadImageError = () => { };
+    private handleLoadImageError = () => { console.log("@###$ Error occurred")};
 
     private getClassName = () => {
         return classNames(
@@ -157,7 +184,7 @@ console.log("should component update");
     };
 
     public render() {
-console.log("Render called");
+    console.log("~~!!! Image Preview Render called:: state image:: ", this.state.image);
         const {
             isChecked,
             style,

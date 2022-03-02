@@ -2,6 +2,9 @@ import {result, zip} from "lodash";
 import { IDBPDatabase, openDB } from 'idb';
 import { ImageData, NewImageData, ImageDatav2 } from "../../store/labels/types";
 import { FileUtil } from "../../utils/FileUtil";
+import { ImageDataUtil } from "../../utils/ImageDataUtil";
+import { string } from "@tensorflow/tfjs-core";
+import { buffer, json } from "stream/consumers";
 
 export type ImageMap = { [s: string]: HTMLImageElement; };
 
@@ -86,7 +89,8 @@ console.log("Object Store is created");
 export class ImageRepository {
     private static repository: ImageMap = {};
     private static indexDB = new IndexedDb("ImageDatabase", "ImageTable");
-    private static savedHTMLTags: HTMLImageElement [] = new Array();
+    private static savedImageData: ImageData [] = new Array();
+    private static nFile: File;
     
     public static storeImage(id: string, image: HTMLImageElement) {
         //ImageRepository.repository[id] = image;
@@ -100,43 +104,57 @@ ImageRepository.storeImage2(id, image);
 ImageRepository.storeImage33(id, image, oimageData);
     }
 
+    private static saveToDB(fileDataURL: string, oimageData: ImageData, id: string, image: HTMLImageElement){
+        
+        const imageDatav2:ImageDatav2 = {
+            id : id,
+            fileData: fileDataURL,
+            filename: oimageData.fileData.name,
+            fileSrc: image.src,
+            fileType: oimageData.fileData.type,
+            lastModified: oimageData.fileData.lastModified,
+            fileSize: oimageData.fileData.size,
+            imgHeight:image.height,
+            imgWidth:image.width,
+            loadStatus: oimageData.loadStatus,
+            labelRects: oimageData.labelRects,
+            labelPoints: oimageData.labelPoints,
+            labelLines: oimageData.labelLines,
+            labelPolygons: oimageData.labelPolygons,
+            labelNameIds: oimageData.labelNameIds,
+            
+            // SSD
+            isVisitedByObjectDetector: oimageData.isVisitedByObjectDetector,
+        
+            // POSE NET
+            isVisitedByPoseDetector: oimageData.isVisitedByPoseDetector,
+            imgloading:image.loading,
+            //imgHtmlTag: JSON.stringify(image),
+                        
+        };	
+        console.log("@@@ Reading the file from the storeImage33 using FileUtil:: ", imageDatav2);
+        console.log("!! File Name ",oimageData.fileData.name );
+        console.log("!! File Type ",oimageData.fileData.type );
+        console.log("!! last Modified ",oimageData.fileData.lastModified );
+        console.log("!! size ",oimageData.fileData.size );
+        console.log("!! JSON form of the original object: ", JSON.stringify(oimageData));
+        ImageRepository.indexDB.putValue("ImageTable", imageDatav2);
+    }
+
 public static storeImage33(id: string, image: HTMLImageElement, oimageData: ImageData){
-
-	
 	console.log("Image object:storeImage3 ", oimageData);
-	
-    
-
-    const imageDatav2:ImageDatav2 = {
-	id : id,
-	fileData: "",
-    filename: image.src,
-    imgHeight:image.height,
-    imgWidth:image.width,
-    loadStatus: oimageData.loadStatus,
-    labelRects: oimageData.labelRects,
-    labelPoints: oimageData.labelPoints,
-    labelLines: oimageData.labelLines,
-    labelPolygons: oimageData.labelPolygons,
-    labelNameIds: oimageData.labelNameIds,
-
-    // SSD
-    isVisitedByObjectDetector: oimageData.isVisitedByObjectDetector,
-
-    // POSE NET
-    isVisitedByPoseDetector: oimageData.isVisitedByPoseDetector,
-                
-};	
-
+    console.log("!!!@@@ HTML Tag when json stringify:: ", JSON.stringify(image));
 //############# conversion logic ########################
+let encodedFileData : string;
+FileUtil.readFileAsByte(oimageData.fileData).then((encodedData: string)=>
+ImageRepository.saveToDB(encodedData, oimageData, id,image )
+//encodedFileData = encodedData
 
-FileUtil.readFile(oimageData.fileData).then((encodedData: string)=>
-imageDatav2.fileData = encodedData
 );
 //#######################################################
 
 
-	ImageRepository.indexDB.putValue("ImageTable", imageDatav2);
+	
 }
 
 public static storeImage2(id: string, image: HTMLImageElement) {
@@ -179,23 +197,69 @@ console.log(pair);
 
 }
 
-public static getById2(uuid: string): Promise<HTMLImageElement> {
+public static getById2(uuid: string): File {
        
-
-	const runAsyncFunctions = async (): Promise<HTMLImageElement> => {
+    
+	/*const runAsyncFunctions = async () => {
 
 	let result = await ImageRepository.indexDB.getValue("ImageTable",uuid);
-	const image = new Image();
-	image.src = result.filename;
+	
+    /*const image = new Image();
+	image.src = result.fileSrc;
     image.height = result.imgHeight;
 	image.width = result.imgWidth;
-    image.loading = result.loading;
-    return image;
-
+    image.loading = result.imgloading;*/
+   // const nFile = new File([result.fileData] , result.filename, {lastModified: result.lastModified, type: result.fileType});
+  //  console.log("!!!@@ Getting result filetype:: ",result.fileType);
+  //  console.log("!!!@@ Getting result file:: ",nFile);
+    /*FileUtil.loadImage(nFile)
+    .then((ele:HTMLImageElement)=> this.imgElement = ele)
+    .catch((error) => this.handleLoadImageError());
+    */
+    //return image;
+   // return nFile;
 	    
+//}
+//return runAsyncFunctions();*/
+
+
+//return this.imgElement;
+/*const runAsyncFunctions = async():Promise<File> => {
+    let result = await ImageRepository.indexDB.getValue("ImageTable",uuid);
+    return new File([result.fileData] , result.filename, {lastModified: result.lastModified, type: result.fileType});
 }
-return runAsyncFunctions();
-	
+return runAsyncFunctions();*/
+ImageRepository.indexDB.getValue("ImageTable", uuid)
+.then((result:ImageDatav2)=>  this.nFile = new File([result.fileData] , result.filename, {lastModified: result.lastModified, type: result.fileType}));
+console.log("!!!@@ Getting result file:: ",this.nFile);
+return this.nFile;
+
+}
+
+public static getHTMLTageById2(uuid: string): Promise<HTMLImageElement> {
+    const runAsyncFunctions = async (): Promise<HTMLImageElement> => {
+
+        let result = await ImageRepository.indexDB.getValue("ImageTable",uuid);
+        console.log("!!!@@ Getting result of loading image:: ",result.imgloading);
+        // new Image needs to be created this time with the json from imgHTmlTag
+        const image = new Image();
+	    image.src = 'data:image/jpeg;base64,' + btoa(result.fileData);//Buffer.from(result.fileData,'base64');
+        //image.loading = result.imgloading;
+        image.height = result.imgHeight;
+	    image.width = result.imgWidth;
+        //image.setAttribute('crossOrigin', 'anonymous');
+        return image;
+    
+            
+    }
+    
+    return runAsyncFunctions();
+
+}
+
+public static convertImageDataToHTMLTag(imageData: ImageData):Promise<HTMLImageElement>  {
+
+    return FileUtil.loadImage(imageData.fileData);
 }
 
 /*public static getById2(uuid: string) {
@@ -203,27 +267,33 @@ return runAsyncFunctions();
 
 }*/
 
-private static convertNewImageTagToHTLMTag(ele: NewImageData):HTMLImageElement {
-    const imge = new Image();
-	imge.src = ele.filename;
-    imge.height = ele.imgHeight;
-	imge.width = ele.imgWidth;
-    imge.loading = ele.loading;
-    return imge;
-   
+private static convertTableDataToImageData(ele: ImageDatav2):ImageData {
+    const nimgData:ImageData = {
+        id: ele.id,
+        fileData: new File([ele.fileData] , ele.filename, {lastModified: ele.lastModified, type: ele.fileType}),
+        loadStatus: ele.loadStatus,
+        labelRects: ele.labelRects,
+        labelPoints: ele.labelPoints,
+        labelLines: ele.labelLines,
+        labelPolygons: ele.labelPolygons,
+        labelNameIds: ele.labelNameIds,
+        isVisitedByObjectDetector: ele.isVisitedByObjectDetector,
+        isVisitedByPoseDetector: ele.isVisitedByPoseDetector
+    };
+   return nimgData;
 }
 
 
-public static getAllSavedImages() : Promise<HTMLImageElement[]> {	
+public static getAllSavedImageData() : Promise<ImageData[]> {	
 	console.log("Getting all saved Images");
-    const getAllSavedImageTags = async (): Promise<HTMLImageElement[]> => {
+    const getAllSavedImageTags = async (): Promise<ImageData[]> => {
    //let result : HTMLImageElement[];
   let imageTags = await ImageRepository.indexDB.getAllValue("ImageTable");
   imageTags.forEach((imageTag)=> 
-  ImageRepository.savedHTMLTags.push(ImageRepository.convertNewImageTagToHTLMTag(imageTag))
+  ImageRepository.savedImageData.push(ImageRepository.convertTableDataToImageData(imageTag))
   );
   console.log("All result together: ", result);
-   return ImageRepository.savedHTMLTags;
+   return ImageRepository.savedImageData;
     }
     return getAllSavedImageTags();
 }

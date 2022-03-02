@@ -27,7 +27,7 @@ export class VirtualList extends React.Component<IProps, IState> {
     
     constructor(props) {
         super(props);
-        console.log("Virtual List is called with total index: ", this.props.childCount);
+        //console.log("Virtual List is called with total index: ", this.props.childCount);
         this.state = {
             viewportRect: null,
             isScrolling: false
@@ -104,7 +104,7 @@ export class VirtualList extends React.Component<IProps, IState> {
     };
 
     private getChildren = () => {
-        console.log("Getting all children from virtual list");
+        //console.log("Getting all children from virtual list");
         const {viewportRect, isScrolling} = this.state;
         const {overScanHeight, childSize} = this.props;
         const overScan: number = !!overScanHeight ? overScanHeight : 0;
@@ -128,7 +128,7 @@ export class VirtualList extends React.Component<IProps, IState> {
                     width: childSize.width,
                     height: childSize.height
                 };
-                console.log("Going to call concat on children with index:: ", index);
+                //console.log("Going to call concat on children with index:: ", index);
                 return children.concat(this.props.childRender(index, isScrolling, isVisible, childStyle))
             }
             else {

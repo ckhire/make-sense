@@ -30,6 +30,28 @@ export class FileUtil {
         })
     }
 
+    public static readFileAsURL(fileData: File): Promise<string> {
+        return new Promise((resolve, reject) => {
+            let reader = new FileReader();
+            reader.onloadend = (event: any) => {
+                resolve(event.target.result);
+            };
+            reader.onerror = reject;
+            reader.readAsDataURL(fileData);
+        })
+    }
+
+    public static readFileAsByte(fileData: File): Promise<string> {
+        return new Promise((resolve, reject) => {
+            let reader = new FileReader();
+            reader.onloadend = (event: any) => {
+                resolve(event.target.result);
+            };
+            reader.onerror = reject;
+            reader.readAsBinaryString(fileData);
+        })
+    }
+
     public static readFiles(fileData: File[]): Promise<string[]> {
         return new Promise((resolve, reject) => {
             const promises: Promise<string>[] = fileData.map((fileData: File) => FileUtil.readFile(fileData))

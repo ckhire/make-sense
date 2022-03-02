@@ -29,41 +29,50 @@ interface ISavedElements {
 
 class ImagesList extends React.Component<IProps, IState> {
     private imagesListRef: HTMLDivElement;
-    private isavedImageElementes : HTMLImageElement [] = new Array();
+    private savedImageData : ImageData [] = new Array();
     
     constructor(props) {
         super(props);
-	console.log("ImageList contructor");
-    ImageRepository.getAllSavedImages().then((imagetag:HTMLImageElement[])=> this.loadPreviousImageList(imagetag));
+        console.log("~~~~~~ Image List constructed initial state:: ", this.props);
+	//console.log("ImageList contructor");
+    ImageRepository.getAllSavedImageData().then((imagetag:ImageData[])=> this.loadPreviousImageList(imagetag));
         this.state = {
-            size: {
-                width: 150,
-                height: 150
-            },
+            size: null
         }
     }
 
-    private loadPreviousImageList(imagetag:HTMLImageElement[]){
-        console.log("loadPreviousImageList");
-        this.isavedImageElementes = imagetag;
-        console.log("@@@ ImageList:: ", imagetag.length);
-        console.log("!!!! this.isavedImageElementes:: ", this.isavedImageElementes.length);
+    private loadPreviousImageList(imagetag:ImageData[]){
+        console.log(" ~~~~~~ loadPreviousImageList:: ", imagetag.length);
+        if(imagetag.length > 1){
+            this.savedImageData = imagetag;
+        } 
+        if(this.props.imagesData.length > 1){
+            console.log(" ~~~~~~ Total length of props:: ",this.props.imagesData.length );
+            this.savedImageData.concat(this.props.imagesData); // lets hope that this will work
+            
+        }
+        /*else {          
+            console.log("~~~~~~Nothing is saved currently::", this.props.imagesData);                     // May need to add few conditions here because length could vary if new images are added
+            this.savedImageData = this.props.imagesData;
+        }*/
     
+        console.log(" ~~~~~~ Total length of savedImageData:: ",this.savedImageData.length );
         
     }
 
     public componentDidMount(): void {
-console.log("ImageList Component Did Mount");
+        console.log("ImageList Component Did Mount");
         this.updateListSize();
         window.addEventListener(EventType.RESIZE, this.updateListSize);
     }
 
     public componentWillUnmount(): void {
-console.log("Image List component will mount");
+        console.log("Image List component will mount");
         window.removeEventListener(EventType.RESIZE, this.updateListSize);
     }
 
     private updateListSize = () => {
+        console.log(" ~~~~~~ Mounting the component with imageListRef:: ", this.imagesListRef);
         if (!this.imagesListRef)
             return;
 
@@ -77,7 +86,8 @@ console.log("Image List component will mount");
     };
 
     private isImageChecked = (index:number): boolean => {
-        const imageData = this.props.imagesData[index]
+        console.log(" ~~~~~~ Object image data in isImageChecked length of saveImageData:: ", this.savedImageData.length);
+        const imageData = this.savedImageData.length > 1 ? this.savedImageData[index] :this.props.imagesData[index] //this.savedImageData[index] // original  this.props.imagesData[index]
         switch (this.props.activeLabelType) {
             case LabelType.LINE:
                 return imageData.labelLines.length > 0
@@ -101,34 +111,36 @@ console.log("Image List component will mount");
     };
 
     private renderImagePreview = (index: number, isScrolling: boolean, isVisible: boolean, style: React.CSSProperties) => {
+        console.log(" ~~~~~~ Object image data in rederImage Preview:: ", this.savedImageData[index]);
         return <ImagePreview
             key={index}
             style={style}
             size={{width: 150, height: 150}}
             isScrolling={isScrolling}
-            isChecked={true} // original this.isImageChecked(index)
-            imageData={this.props.imagesData[0]}
+            isChecked={this.isImageChecked(index)} // original this.isImageChecked(index)
+            imageData={this.savedImageData.length > 1 ? this.savedImageData[index]: this.props.imagesData[index]}//{this.props.imagesData[index]} // savedImageData  savedImageData
             onClick={() => this.onClickHandler(index)}
             isSelected={this.props.activeImageIndex === index}
-            imageElement={this.isavedImageElementes[index]}
+           // imageElement={this.isavedImageElementes[index]}
         />
     };
 
     public render() {
 console.log("ImgeList rendering");
-console.log("!!! this.isavedImageElementes length: ", this.isavedImageElementes.length);
+console.log(" ~~~~~~ this.isavedImageElementes length: ", this.savedImageData.length);
+console.log(" ~~~~~~ current state : ", this.state);
         const { size } = this.state;
         return(
             <div
                 className="ImagesList"
                 ref={ref => this.imagesListRef = ref}
                 onClick={() => ContextManager.switchCtx(ContextType.LEFT_NAVBAR)}
-            >//original !!size
+            >
                 {!!size && <VirtualList
                     size={size}
                     childSize={{width: 150, height: 150}}
-                    childCount={this.isavedImageElementes.length}  //original: this.props.imagesData.length
-                    childRender={this.renderImagePreview}
+                    childCount={this.savedImageData.length > 1 ? this.savedImageData.length : this.props.imagesData.length} //{this.props.imagesData.length}  //original: this.props.imagesData.length  savedImageData
+                    childRender={this.renderImagePreview} 
                     overScanHeight={200}
                 />}
             </div>
