@@ -35,7 +35,7 @@ class ImagesList extends React.Component<IProps, IState> {
         super(props);
         console.log("~~~~~~ Image List constructed initial state:: ", this.props);
 	//console.log("ImageList contructor");
-    ImageRepository.getAllSavedImageData().then((imagetag:ImageData[])=> this.loadPreviousImageList(imagetag));
+    //ImageRepository.getAllSavedImageData().then((imagetag:ImageData[])=> this.loadPreviousImageList(imagetag));
         this.state = {
             size: null
         }

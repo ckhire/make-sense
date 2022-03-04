@@ -16,7 +16,8 @@ const initialState: GeneralState = {
         type: null,
         name: 'my-project-name',
     },
-    zoom: ViewPointSettings.MIN_ZOOM
+    zoom: ViewPointSettings.MIN_ZOOM,
+    //imageDataSet: null,
 };
 
 export function generalReducer(
@@ -84,6 +85,7 @@ export function generalReducer(
                 enablePerClassColoration: action.payload.enablePerClassColoration
             }
         }
+        
         default:
             return state;
     }

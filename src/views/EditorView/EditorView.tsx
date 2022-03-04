@@ -14,6 +14,7 @@ interface IProps {
 const EditorView: React.FC<IProps> = ({activePopupType}) => {
 
     const getClassName = () => {
+        console.log("Loading Editor View Active Popup Type initialy:: ", activePopupType);
         return classNames(
             'EditorView',
             {

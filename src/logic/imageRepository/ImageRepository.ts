@@ -13,9 +13,12 @@ export class IndexedDb {
     private database: string;
     private db: any;
 
+
     constructor(database: string, tableName: string) {
+        console.log("IndexedDB constructor called");
         this.database = database;
-        this.createObjectStore(tableName);
+        
+        //this.createObjectStore(tableName);
 console.log("Object Store is created");
     }
 
@@ -88,12 +91,16 @@ console.log("Object Store is created");
 
 export class ImageRepository {
     private static repository: ImageMap = {};
-    private static indexDB = new IndexedDb("ImageDatabase", "ImageTable");
+    private static indexDB : IndexedDb;//new IndexedDb("ImageDatabase", "ImageTable");
     private static savedImageData: ImageData [] = new Array();
     private static nFile: File;
     
+    public static setIndexDB(indexedDB: IndexedDb) {
+        ImageRepository.indexDB = indexedDB;
+    }
+
     public static storeImage(id: string, image: HTMLImageElement) {
-        //ImageRepository.repository[id] = image;
+        ImageRepository.repository[id] = image;
        console.log("id from storeImage ", id);
 ImageRepository.storeImage2(id, image);
     }
@@ -192,7 +199,8 @@ console.log(pair);
     }
 
     public static getById(uuid: string): HTMLImageElement {
-       
+    console.log("Image from the ImageRepository:: ", ImageRepository.repository[uuid]);
+    console.log("All values from the repository map:: ", ImageRepository.repository);
 	return ImageRepository.repository[uuid];
 
 }
@@ -236,6 +244,7 @@ return this.nFile;
 
 }
 
+
 public static getHTMLTageById2(uuid: string): Promise<HTMLImageElement> {
     const runAsyncFunctions = async (): Promise<HTMLImageElement> => {
 
@@ -268,9 +277,10 @@ public static convertImageDataToHTMLTag(imageData: ImageData):Promise<HTMLImageE
 }*/
 
 private static convertTableDataToImageData(ele: ImageDatav2):ImageData {
+    //'data:image/jpeg;base64,' + btoa
     const nimgData:ImageData = {
         id: ele.id,
-        fileData: new File([ele.fileData] , ele.filename, {lastModified: ele.lastModified, type: ele.fileType}),
+        fileData: new File(['data:image/jpeg;base64,' + btoa(ele.fileData)] , ele.filename, {lastModified: ele.lastModified, type: ele.fileType}),
         loadStatus: ele.loadStatus,
         labelRects: ele.labelRects,
         labelPoints: ele.labelPoints,
@@ -290,14 +300,38 @@ public static getAllSavedImageData() : Promise<ImageData[]> {
    //let result : HTMLImageElement[];
   let imageTags = await ImageRepository.indexDB.getAllValue("ImageTable");
   imageTags.forEach((imageTag)=> 
-  ImageRepository.savedImageData.push(ImageRepository.convertTableDataToImageData(imageTag))
+  {
+  ImageRepository.savedImageData.push(ImageRepository.convertTableDataToImageData(imageTag));
+  const image = new Image();
+	    image.src = 'data:image/jpeg;base64,' + btoa(imageTag.fileData);//Buffer.from(result.fileData,'base64');
+        //image.loading = result.imgloading;
+        image.height = imageTag.imgHeight;
+	    image.width = imageTag.imgWidth;
+        ImageRepository.repository[imageTag.id] = image;
+  }
   );
   console.log("All result together: ", result);
+  console.log("~~~@@ ImageRepository savedImagedata getAllSaved length: ",ImageRepository.savedImageData);
    return ImageRepository.savedImageData;
     }
     return getAllSavedImageTags();
 }
 
+/*private creteHTMLFromImageData(fileData:any) {
+
+}*/
+/*
+public static loadAllImageDataToMap() {
+    console.log("~~~@@ ImageRepository savedImagedata length: ",ImageRepository.savedImageData);
+    if(ImageRepository.savedImageData.length > 1) {
+        ImageRepository.savedImageData.forEach((imageData)=>{
+        FileUtil.loadImage(imageData.fileData)
+        .then((imagHTML: HTMLImageElement)=> ImageRepository.repository[imageData.id]=imagHTML)
+        .catch((error) =>{});
+        }
+        )
+    }
+}*/
 
 }
 

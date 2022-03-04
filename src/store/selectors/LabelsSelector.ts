@@ -25,6 +25,10 @@ export class LabelsSelector {
         return store.getState().labels.imagesData;
     }
 
+    public static getImagesDataCount(): number {
+        return store.getState().labels.imagesData.length;
+    }
+
     public static getActiveImageIndex(): number {
         return store.getState().labels.activeImageIndex;
     }

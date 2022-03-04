@@ -49,6 +49,7 @@ class Editor extends React.Component<IProps, IState> {
 
     constructor(props) {
         super(props);
+        //console.log("Propse of the Editor:: ", props);
         this.state = {
             viewPortSize: {
                 width: 0,
@@ -112,7 +113,9 @@ class Editor extends React.Component<IProps, IState> {
     // =================================================================================================================
 
     private loadImage = async (imageData: ImageData): Promise<any> => {
+        console.log("Editor received imageData: ", imageData);
         if (imageData.loadStatus) {
+            
             EditorActions.setActiveImage(ImageRepository.getById(imageData.id));
             AIActions.detect(imageData.id, ImageRepository.getById(imageData.id));
             this.updateModelAndRender()

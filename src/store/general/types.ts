@@ -4,6 +4,7 @@ import {PopupWindowType} from '../../data/enums/PopupWindowType';
 import {CustomCursorStyle} from '../../data/enums/CustomCursorStyle';
 import {ContextType} from '../../data/enums/ContextType';
 import {ProjectType} from '../../data/enums/ProjectType';
+//import {ImageData} from '../labels/types';
 
 // cutome indexddb code
 
@@ -24,6 +25,7 @@ export type GeneralState = {
     activeContext: ContextType;
     projectData: ProjectData;
     zoom: number;
+    //imageDataSet: ImageData[];
 }
 
 interface UpdateProjectData {
@@ -95,6 +97,7 @@ interface UpdatePerClassColoration {
         enablePerClassColoration: boolean;
     }
 }
+
 
 export type GeneralActionTypes = UpdateProjectData
     | UpdateWindowSize

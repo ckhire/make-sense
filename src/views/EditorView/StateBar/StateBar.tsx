@@ -13,6 +13,7 @@ interface IProps {
 const StateBar: React.FC<IProps> = ({imagesData, activeLabelType}) => {
 
     const pointLabeledImages = imagesData.reduce((currentCount: number, currentImage: ImageData) => {
+        console.log("StateBar imageData: ", currentImage);
         return currentCount + (currentImage.labelPoints.length > 0 ? 1 : 0);
     }, 0);
 

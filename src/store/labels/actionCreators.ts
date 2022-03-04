@@ -92,3 +92,13 @@ export function updateFirstLabelCreatedFlag(firstLabelCreatedFlag: boolean): Lab
         }
     }
 }
+
+/*
+export function loadSavedImageData(imageDataSet: ImageData[]): LabelsActionTypes {
+    return {
+        type: Action.LOAD_SAVED_IMAGE_DATA,
+        payload: {
+            imageDataSet,
+        },
+    };
+}*/

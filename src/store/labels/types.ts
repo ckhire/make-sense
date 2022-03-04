@@ -183,6 +183,14 @@ interface UpdateFirstLabelCreatedFlag {
     }
 }
 
+/*
+interface LoadSavedImageData {
+    type: typeof Action.LOAD_SAVED_IMAGE_DATA,
+    payload: {
+        imageDataSet: ImageData[];
+    }
+}*/
+
 export type LabelsActionTypes = UpdateActiveImageIndex
     | UpdateActiveLabelNameId
     | UpdateActiveLabelType
@@ -193,4 +201,5 @@ export type LabelsActionTypes = UpdateActiveImageIndex
     | UpdateActiveLabelId
     | UpdateHighlightedLabelId
     | UpdateFirstLabelCreatedFlag
+  //  | LoadSavedImageData
 

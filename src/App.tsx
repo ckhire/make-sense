@@ -36,7 +36,7 @@ console.log("Going to call EditorView");
             }
         }
     };
-console.log("Object Detector Loaded in App.tsx");
+console.log("Object Detector Loaded in App.tsx", ObjectDetectorLoaded);
       return (
 
         <div className={classNames('App', {'AI': ObjectDetectorLoaded || PoseDetectionLoaded})}
