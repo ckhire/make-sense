@@ -114,11 +114,21 @@ class Editor extends React.Component<IProps, IState> {
 
     private loadImage = async (imageData: ImageData): Promise<any> => {
         console.log("Editor received imageData: ", imageData);
+        //Below if and the else part is the temporary thing. More better solution needs to be thought
         if (imageData.loadStatus) {
+            if(ImageRepository.getById(imageData.id)){
+
             
             EditorActions.setActiveImage(ImageRepository.getById(imageData.id));
             AIActions.detect(imageData.id, ImageRepository.getById(imageData.id));
             this.updateModelAndRender()
+            } else {
+                EditorActions.setLoadingStatus(true);
+                const saveLoadedImagePartial = (image: HTMLImageElement) => this.saveLoadedImage(image, imageData);
+                FileUtil.loadImage(imageData.fileData)
+                    .then((image:HTMLImageElement) => saveLoadedImagePartial(image))
+                    .catch((error) => this.handleLoadImageError())
+            }
         }
         else {
             if (!EditorModel.isLoading) {
