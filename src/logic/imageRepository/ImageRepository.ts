@@ -153,6 +153,7 @@ ImageRepository.storeImage33(id, image, oimageData);
         console.log("!! size ",oimageData.fileData.size );
         console.log("!! JSON form of the original object: ", JSON.stringify(oimageData));
         ImageRepository.indexDB.putValue("ImageTable", imageDatav2);
+        ImageRepository.isTableEmpty = false;
     }
 
 public static storeImage33(id: string, image: HTMLImageElement, oimageData: ImageData){
@@ -336,8 +337,8 @@ public static updateNewImageDataById(imageData: ImageData) {
     fileType: previousNewImageData.fileType,
     lastModified: previousNewImageData.lastModified,
     fileSize: previousNewImageData.fileSize,
-    imgHeight:previousNewImageData.imgWidth,
-    imgWidth:previousNewImageData.imgHeight,
+    imgHeight:previousNewImageData.imgHeight,
+    imgWidth:previousNewImageData.imgWidth,
     loadStatus: imageData.loadStatus,
     labelRects: imageData.labelRects,
     labelPoints: imageData.labelPoints,
