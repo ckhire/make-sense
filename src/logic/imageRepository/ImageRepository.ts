@@ -5,9 +5,10 @@ import { FileUtil } from "../../utils/FileUtil";
 import { ImageDataUtil } from "../../utils/ImageDataUtil";
 import { string } from "@tensorflow/tfjs-core";
 import { buffer, json } from "stream/consumers";
+import { Console } from "console";
 
 export type ImageMap = { [s: string]: HTMLImageElement; };
-
+export type ImageDataMap = {[s:string]: ImageDatav2;};
 
 export class IndexedDb {
     private database: string;
@@ -91,6 +92,7 @@ console.log("Object Store is created");
 
 export class ImageRepository {
     private static repository: ImageMap = {};
+    private static newImageDataRepository: ImageDataMap = {};
     private static indexDB : IndexedDb;//new IndexedDb("ImageDatabase", "ImageTable");
     private static savedImageData: ImageData [] = new Array();
     private static nFile: File;
@@ -247,7 +249,7 @@ return this.nFile;
 
 public static getHTMLTageById2(uuid: string): Promise<HTMLImageElement> {
     const runAsyncFunctions = async (): Promise<HTMLImageElement> => {
-
+        console.log("!!!@@ Getting result of loading image:: for id:: ", uuid);
         let result = await ImageRepository.indexDB.getValue("ImageTable",uuid);
         console.log("!!!@@ Getting result of loading image:: ",result.imgloading);
         // new Image needs to be created this time with the json from imgHTmlTag
@@ -301,6 +303,7 @@ public static getAllSavedImageData() : Promise<ImageData[]> {
   let imageTags = await ImageRepository.indexDB.getAllValue("ImageTable");
   imageTags.forEach((imageTag)=> 
   {
+      ImageRepository.newImageDataRepository[imageTag.id] = imageTag;
   ImageRepository.savedImageData.push(ImageRepository.convertTableDataToImageData(imageTag));
   const image = new Image();
 	    image.src = 'data:image/jpeg;base64,' + btoa(imageTag.fileData);//Buffer.from(result.fileData,'base64');
@@ -317,6 +320,41 @@ public static getAllSavedImageData() : Promise<ImageData[]> {
     return getAllSavedImageTags();
 }
 
+public static updateNewImageDataById(imageData: ImageData) {
+  let previousNewImageData = ImageRepository.newImageDataRepository[imageData.id];
+  const updateNewImageData: ImageDatav2 = {
+    id : imageData.id,
+    fileData: previousNewImageData.fileData,
+    filename: previousNewImageData.filename,
+    fileSrc: previousNewImageData.fileSrc,
+    fileType: previousNewImageData.fileType,
+    lastModified: previousNewImageData.lastModified,
+    fileSize: previousNewImageData.fileSize,
+    imgHeight:previousNewImageData.imgWidth,
+    imgWidth:previousNewImageData.imgHeight,
+    loadStatus: imageData.loadStatus,
+    labelRects: imageData.labelRects,
+    labelPoints: imageData.labelPoints,
+    labelLines: imageData.labelLines,
+    labelPolygons: imageData.labelPolygons,
+    labelNameIds: imageData.labelNameIds,
+    
+    // SSD
+    isVisitedByObjectDetector: imageData.isVisitedByObjectDetector,
+
+    // POSE NET
+    isVisitedByPoseDetector: imageData.isVisitedByPoseDetector,
+    imgloading:previousNewImageData.imgloading,
+    //imgHtmlTag: JSON.stringify(image),
+                
+};	
+ImageRepository.newImageDataRepository[imageData.id] = updateNewImageData;
+console.log("Updating the new ImageDatav2 in the table with id: ", imageData.id);
+ImageRepository.indexDB.putValue("ImageTable", updateNewImageData);
+
+
+  }
+//}
 /*private creteHTMLFromImageData(fileData:any) {
 
 }*/

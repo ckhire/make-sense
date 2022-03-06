@@ -1,5 +1,7 @@
 import {LabelsActionTypes, LabelsState, ImageData} from './types';
 import {Action} from '../Actions';
+import { ImageRepository } from '../../logic/imageRepository/ImageRepository';
+
 
 const initialState: LabelsState = {
     activeImageIndex: null,
@@ -51,8 +53,16 @@ export function labelsReducer(
             return {
                 ...state,
                 imagesData: state.imagesData.map((imageData: ImageData) =>
-                    imageData.id === action.payload.id ? action.payload.newImageData : imageData
-                )
+                    //imageData.id === action.payload.id ? action.payload.newImageData : imageData
+                    {
+                        if(imageData.id == action.payload.id) {
+                            // fetch the newImage Data by id then update particular value and put that in the db
+                            ImageRepository.updateNewImageDataById(action.payload.newImageData);
+                        return action.payload.newImageData;
+                    } else {
+                        return imageData;
+                    }
+                    })
             }
         }
         case Action.ADD_IMAGES_DATA: {
@@ -65,6 +75,7 @@ export function labelsReducer(
             return {
                 ...state,
                 imagesData: action.payload.imageData
+
             }
         }
         case Action.UPDATE_LABEL_NAMES: {
