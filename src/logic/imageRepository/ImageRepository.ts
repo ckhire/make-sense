@@ -96,6 +96,11 @@ export class ImageRepository {
     private static indexDB : IndexedDb;//new IndexedDb("ImageDatabase", "ImageTable");
     private static savedImageData: ImageData [] = new Array();
     private static nFile: File;
+    private static isTableEmpty = true;
+
+    public static isTableHasData(): boolean{
+        return !ImageRepository.isTableEmpty;
+    }
     
     public static setIndexDB(indexedDB: IndexedDb) {
         ImageRepository.indexDB = indexedDB;
@@ -301,6 +306,7 @@ public static getAllSavedImageData() : Promise<ImageData[]> {
     const getAllSavedImageTags = async (): Promise<ImageData[]> => {
    //let result : HTMLImageElement[];
   let imageTags = await ImageRepository.indexDB.getAllValue("ImageTable");
+  ImageRepository.isTableEmpty = imageTags.length > 0 ? false : true;
   imageTags.forEach((imageTag)=> 
   {
       ImageRepository.newImageDataRepository[imageTag.id] = imageTag;

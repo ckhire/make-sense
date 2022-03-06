@@ -57,7 +57,8 @@ export function labelsReducer(
                     {
                         if(imageData.id == action.payload.id) {
                             // fetch the newImage Data by id then update particular value and put that in the db
-                            ImageRepository.updateNewImageDataById(action.payload.newImageData);
+                            console.log("~~!!! does table Has Data:: ", ImageRepository.isTableHasData());
+                          ImageRepository.isTableHasData() && ImageRepository.updateNewImageDataById(action.payload.newImageData);
                         return action.payload.newImageData;
                     } else {
                         return imageData;
