@@ -1,6 +1,6 @@
 import {result, zip} from "lodash";
 import { IDBPDatabase, openDB } from 'idb';
-import { ImageData, NewImageData, ImageDatav2 } from "../../store/labels/types";
+import { ImageData, NewImageData, ImageDatav2, LabelName } from "../../store/labels/types";
 import { FileUtil } from "../../utils/FileUtil";
 import { ImageDataUtil } from "../../utils/ImageDataUtil";
 import { string } from "@tensorflow/tfjs-core";
@@ -380,3 +380,45 @@ public static loadAllImageDataToMap() {
 
 }
 
+export class LableRepository {
+    private static isTableEmpty = true;
+    private static indexDB : IndexedDb;
+    private static savedLableNames: LabelName [] = new Array();
+
+
+    public static isTableHasData(): boolean{
+        return !LableRepository.isTableEmpty;
+    }
+    
+    public static setIndexDB(indexedDB: IndexedDb) {
+        LableRepository.indexDB = indexedDB;
+    }
+
+    public static storeLableNames(lableNames : LabelName[]) {
+        if(lableNames.length > 0 ){
+           /* lableNames.forEach((lablename: LabelName)=>
+            {
+                LableRepository.indexDB.putValue("LableNameTable", lablename); 
+            }
+            );*/
+            LableRepository.isTableEmpty = false;
+            LableRepository.indexDB.putBulkValue("LableNameTable",lableNames);
+        }
+    }
+
+    public static restoreAllLableNames() :Promise<LabelName[]>{
+        const runAsyncFunctions = async (): Promise<LabelName[]> => {
+            LableRepository.savedLableNames = await LableRepository.indexDB.getAllValue("LableNameTable");
+            return LableRepository.savedLableNames.length > 0 ? LableRepository.savedLableNames : new Array();
+            
+        }
+
+            return runAsyncFunctions();
+    }
+
+    public static getAllLableNames(): LabelName[] {
+        return LableRepository.savedLableNames;
+    }
+
+
+}

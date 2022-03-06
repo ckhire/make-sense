@@ -15,7 +15,7 @@ import EmptyLabelList from "../EmptyLabelList/EmptyLabelList";
 import {LabelActions} from "../../../../logic/actions/LabelActions";
 import {LabelStatus} from "../../../../data/enums/LabelStatus";
 import {findLast} from "lodash";
-
+// Since this class is getting its state from the store it should also get the stored Lable Names. I need to check this
 interface IProps {
     size: ISize;
     imageData: ImageData;

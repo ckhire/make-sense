@@ -1,6 +1,6 @@
 import {LabelsActionTypes, LabelsState, ImageData} from './types';
 import {Action} from '../Actions';
-import { ImageRepository } from '../../logic/imageRepository/ImageRepository';
+import { ImageRepository, LableRepository } from '../../logic/imageRepository/ImageRepository';
 
 
 const initialState: LabelsState = {
@@ -80,9 +80,11 @@ export function labelsReducer(
             }
         }
         case Action.UPDATE_LABEL_NAMES: {
+            LableRepository.storeLableNames(action.payload.labels);
             return {
                 ...state,
                 labels: action.payload.labels
+                
             }
         }
         case Action.UPDATE_FIRST_LABEL_CREATED_FLAG: {

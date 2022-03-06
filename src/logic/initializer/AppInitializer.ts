@@ -6,9 +6,9 @@ import {PlatformModel} from "../../staticModels/PlatformModel";
 import {EventType} from "../../data/enums/EventType";
 import {GeneralSelector} from "../../store/selectors/GeneralSelector";
 import {EnvironmentUtil} from "../../utils/EnvironmentUtil";
-import{ImageRepository} from "../imageRepository/ImageRepository";
-import {ImageData} from "../../store/labels/types";
-import { updateImageData } from "../../store/labels/actionCreators";
+import{ImageRepository, LableRepository} from "../imageRepository/ImageRepository";
+import {ImageData, LabelName} from "../../store/labels/types";
+import { updateImageData, updateLabelNames } from "../../store/labels/actionCreators";
 import { IndexedDb } from "../imageRepository/ImageRepository";
 //import { updateActivePopupType } from "../../store/general/actionCreators";
 // I guess I have to write here the main logic of state transition
@@ -32,13 +32,20 @@ Currently I think so this could be done. But I am not sure where to save the Ima
     private static handleDB = () =>{
         const indexedDB = new IndexedDb("ImageDatabase", "ImageTable");
         ImageRepository.setIndexDB(indexedDB);
-        indexedDB.createObjectStore("ImageTable").then(()=>AppInitializer.getAllDBItems());
+        indexedDB.createObjectStore("ImageTable").then(()=>AppInitializer.getAllImageDBItems());
+        const lableIndexedDB = new IndexedDb("lableDatabase", "LableNameTable"); //LableNameTable
+        LableRepository.setIndexDB(lableIndexedDB);
+        lableIndexedDB.createObjectStore("LableNameTable").then(()=>AppInitializer.getAllLableNameDBItems());
         
         //;
     }
 
+    private static getAllLableNameDBItems = () => {
+        LableRepository.restoreAllLableNames()
+        .then((lableNames: LabelName[])=> store.dispatch(updateLabelNames(lableNames)));
+    }
 
-    private static getAllDBItems = () => {
+    private static getAllImageDBItems = () => {
         ImageRepository.getAllSavedImageData()
         .then((imageDataSet:ImageData[])=> 
         {
